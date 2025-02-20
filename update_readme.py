@@ -6,6 +6,7 @@ from PIL import Image
 README_PATH = "README.md"
 ASSETS_DIR = "assets"
 BG_PATH = os.path.join(ASSETS_DIR, "bg.png")
+PUZZLES_DIR = "puzzles"
 
 # GitHub 需要相对路径
 BG_TOP_PATH = "assets/bg_top.png"
@@ -19,41 +20,61 @@ BACKGROUND_HEIGHT = ROW_HEIGHT * TABLE_ROWS  # 计算目标背景图高度
 BASE_URL = "https://github.com/Ascarshen/js-puzzles/tree/main"
 PUZZLE_BASE_URL = "https://www.janestreet.com/puzzles"
 
-def crop_background():
-    """ 读取 `assets/bg.png` 并裁剪背景，使其高度与表格匹配 """
-    if not os.path.exists(BG_PATH):
-        print(f"❌ Error: Background image `{BG_PATH}` not found! Please make sure `assets/bg.png` exists.")
-        return
+def find_solutions():
+    """ 遍历 puzzles 目录，自动收集所有题目，并按时间顺序排序 """
+    solutions = []
     
-    print(f"📤 Loading background image: {BG_PATH}")
-    image = Image.open(BG_PATH)
+    if not os.path.exists(PUZZLES_DIR):
+        print(f"❌ Error: `{PUZZLES_DIR}` folder not found!")
+        return solutions
 
-    width, height = image.size
+    for year in sorted(os.listdir(PUZZLES_DIR), reverse=True):  # 遍历 2024, 2025...
+        year_path = os.path.join(PUZZLES_DIR, year)
+        if not os.path.isdir(year_path) or not year.isdigit():
+            continue  # 只处理年份文件夹
 
-    # **确保裁剪高度不超过原始图片高度**
-    crop_height = min(BACKGROUND_HEIGHT, height)
+        for month_dir in sorted(os.listdir(year_path), reverse=True):  # **按时间顺序（最新在上）**
+            match = re.match(r"(\d{6})-(.+)", month_dir)
+            if match:
+                year_month = match.group(1)  # 202411
+                year_num, month_num = year_month[:4], year_month[4:]  # 2024, 11
+                puzzle_name = match.group(2).replace("-", " ").title()  # 转换为 Title 格式
+                
+                # 构造 URL
+                problem_url = f"{PUZZLE_BASE_URL}/{match.group(2)}-index/"
+                solution_url = f"{PUZZLE_BASE_URL}/{match.group(2)}-solution/"
+                my_solution_url = f"{BASE_URL}/{PUZZLES_DIR}/{year}/{month_dir}/"
 
-    # 确保 assets 目录存在
-    if not os.path.exists(ASSETS_DIR):
-        os.makedirs(ASSETS_DIR)
+                solutions.append((year_num, month_num, puzzle_name, problem_url, my_solution_url, solution_url))
+    
+    # **按时间排序（最新的题目在最上面）**
+    solutions.sort(key=lambda x: (x[0], x[1]), reverse=True)
+    
+    return solutions
 
-    # 删除旧图片（如果存在）
-    for file_path in [BG_TOP_PATH, BG_BOTTOM_PATH]:
-        if os.path.exists(file_path):
-            os.remove(file_path)
+def generate_solution_table(solutions):
+    """ 生成动态 Markdown 表格 """
+    table_md = "<!-- 背景图上半部分 -->\n"
+    table_md += f"![背景上半部分]({BG_TOP_PATH})\n\n"
+    table_md += "<!-- TABLE_START -->\n"
+    table_md += "<div align='center'>\n\n"
+    table_md += "| Year  | Month | Puzzle Name | Problem | My Solution | Official Solution |\n"
+    table_md += "|------ |------ |------------|---------|------------|------------------|\n"
 
-    # 裁剪上半部分，使其与表格高度一致
-    top_half = image.crop((0, 0, width, crop_height))
-    top_half.save(BG_TOP_PATH)
-    print(f"✅ Updated top half: {BG_TOP_PATH}")
+    for year, month, puzzle_name, problem_url, my_solution_url, solution_url in solutions:
+        table_md += f"| {year} | {month} | {puzzle_name} | [📜]({problem_url}) | [✔]({my_solution_url}) | [🔗]({solution_url}) |\n"
 
-    # 裁剪下半部分，使其与表格高度一致
-    bottom_half = image.crop((0, height - crop_height, width, height))
-    bottom_half.save(BG_BOTTOM_PATH)
-    print(f"✅ Updated bottom half: {BG_BOTTOM_PATH}")
+    table_md += "</div>\n\n"
+    table_md += "<!-- TABLE_END -->\n\n"
+    table_md += f"<!-- 背景图下半部分 -->\n![背景下半部分]({BG_BOTTOM_PATH})\n"
+
+    return table_md
 
 def update_readme():
     """ 更新 README.md，确保 `<!-- 背景图上半部分 -->` 和 `<!-- 背景图下半部分 -->` 只出现一次 """
+    solutions = find_solutions()
+    new_table = generate_solution_table(solutions)
+
     with open(README_PATH, "r", encoding="utf-8") as f:
         content = f.readlines()
 
@@ -85,24 +106,13 @@ def update_readme():
     start_idx = cleaned_content.index("<!-- TABLE_START -->\n")
     end_idx = cleaned_content.index("<!-- TABLE_END -->\n") + 1
 
-    # 生成新的 **居中的表格**
-    new_table = f"<!-- 背景图上半部分 -->\n![背景上半部分]({BG_TOP_PATH})\n\n"
-    new_table += "<!-- TABLE_START -->\n"
-    new_table += "<div align='center'>\n\n"
-    new_table += "| Year  | Month | Puzzle Name | Problem | My Solution | Official Solution |\n"
-    new_table += "|------ |------ |------------|---------|------------|------------------|\n"
-    new_table += "| 2025  | 01  | Somewhat Square Sudoku | [📜](https://www.janestreet.com/puzzles/somewhat-square-sudoku-index/) | [✔](https://github.com/Ascarshen/js-puzzles/tree/main/2025/202501-somewhat-square-sudoku/) | [🔗](https://www.janestreet.com/puzzles/somewhat-square-sudoku-solution/) |\n"
-    new_table += "</div>\n\n"
-    new_table += "<!-- TABLE_END -->\n\n"
-    new_table += f"<!-- 背景图下半部分 -->\n![背景下半部分]({BG_BOTTOM_PATH})\n"
-
+    # **更新 README.md**
     cleaned_content[start_idx:end_idx] = [new_table]
 
     with open(README_PATH, "w", encoding="utf-8") as f:
         f.writelines(cleaned_content)
 
-    print("✅ README.md updated! Table is now centered.")
+    print("✅ README.md updated! Table dynamically generated and sorted by time.")
 
 if __name__ == "__main__":
-    crop_background()  # 自动裁剪背景
     update_readme()
