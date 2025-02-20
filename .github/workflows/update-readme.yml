@@ -7,6 +7,9 @@ on:
   schedule:
     - cron: '0 0 * * *'  # 每天 00:00 运行
 
+permissions:
+  contents: write  # ✅ 允许 Actions 写入仓库
+
 jobs:
   update-readme:
     runs-on: ubuntu-latest
@@ -39,4 +42,4 @@ jobs:
           git commit -m "🤖 Auto-update README with latest background images" || echo "No changes to commit"
           git push origin main || echo "No changes to push"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # ✅ 使用 GitHub 自动生成的 Token 进行身份验证
