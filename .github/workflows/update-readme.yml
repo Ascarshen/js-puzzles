@@ -3,33 +3,33 @@ name: Update README
 on:
   push:
     branches:
-      - main  # 仅在 main 分支推送时触发
+      - main
   schedule:
-    - cron: '0 0 * * *'  # 每天 00:00 运行一次（可调整）
+    - cron: '0 0 * * *'  # 每天 00:00 运行
 
 jobs:
   update-readme:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🛎️ Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: 🐍 Set up Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: pip install pillow
 
-      - name: 🚀 Run update_readme.py
+      - name: Run update_readme.py
         run: python update_readme.py
 
-      - name: 📝 Commit and push changes
+      - name: Commit and push changes
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add README.md assets/bg_top.png assets/bg_bottom.png
-          git commit -m "🤖 Auto-update README with latest background images" || echo "No changes to commit"
+          git commit -m "Auto-update README" || echo "No changes to commit"
           git push || echo "No changes to push"
