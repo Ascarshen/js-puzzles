@@ -17,6 +17,7 @@ Click on a checkmark in the table below to view the puzzles and solutions for th
 
 | Year  | Month | Puzzle Name | Problem | My Solution | Official Solution |
 |------ |------ |------------|---------|------------|------------------|
+| 2025 | 06 | Some Ones Somewhere | [📜](https://www.janestreet.com/puzzles/some-ones-somewhere-index/) | [✔](https://github.com/Ascarshen/js-puzzles/tree/main/puzzles/2025/202506-some-ones-somewhere/) | [🔗](https://www.janestreet.com/puzzles/some-ones-somewhere-solution/) |
 | 2025 | 02 | Top Score Give Or Take | [📜](https://www.janestreet.com/puzzles/top-score-give-or-take-index/) | [✔](https://github.com/Ascarshen/js-puzzles/tree/main/puzzles/2025/202502-top-score-give-or-take/) | [🔗](https://www.janestreet.com/puzzles/top-score-give-or-take-solution/) |
 | 2025 | 01 | Somewhat Square Sudoku | [📜](https://www.janestreet.com/puzzles/somewhat-square-sudoku-index/) | [✔](https://github.com/Ascarshen/js-puzzles/tree/main/puzzles/2025/202501-somewhat-square-sudoku/) | [🔗](https://www.janestreet.com/puzzles/somewhat-square-sudoku-solution/) |
 | 2024 | 11 | Beside The Point | [📜](https://www.janestreet.com/puzzles/beside-the-point-index/) | [✔](https://github.com/Ascarshen/js-puzzles/tree/main/puzzles/2024/202411-beside-the-point/) | [🔗](https://www.janestreet.com/puzzles/beside-the-point-solution/) |
